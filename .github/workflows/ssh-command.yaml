@@ -35,24 +35,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Deploy to GCP VM
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            docker pull docker.io/adityabawne37/hinata:master
-
-            docker stop hinata || true
-            docker rm hinata || true
-
-            docker run -d \
-              --name hinata \
-              --restart unless-stopped \
-              -p 9000:9000 \
-              docker.io/adityabawne37/hinata:master
-
-            docker image prune -f
