@@ -11,18 +11,7 @@
 #     runs-on: ubuntu-latest
 
 #     steps:
-#       - name: executing remote ssh commands using password
-#         uses: appleboy/ssh-action@v1.2.2
-#         with:
-#           host: ${{ secrets.HOST }}
-#           username: ${{ secrets.USERNAME }}
-#           password: ${{ secrets.PASSWORD }}
-#           port: ${{ secrets.PORT }}
-#           script: |
-#             docker stop hinata
-#             docker rm hinata
-#             docker build -t hinata .
-#             docker run -d --name hinata -p 9000:9000 hinata
+
 
 name: Publish Docker Image
 
@@ -61,3 +50,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            docker stop hinata
+            docker rm hinata
+            docker run -d --name hinata -p 9000:9000 docker.io/adityabawne37/hinata:master
+            docker rmi docker.io/adityabawne37/hinata:master
