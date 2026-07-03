@@ -44,7 +44,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            docker stop hinata
-            docker rm hinata
-            docker run -d --name hinata -p 9000:9000 docker.io/adityabawne37/hinata:master
-            docker rmi docker.io/adityabawne37/hinata:master
+            docker pull docker.io/adityabawne37/hinata:master
+
+            docker stop hinata || true
+            docker rm hinata || true
+
+            docker run -d \
+              --name hinata \
+              --restart unless-stopped \
+              -p 9000:9000 \
+              docker.io/adityabawne37/hinata:master
+
+            docker image prune -f
