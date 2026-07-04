@@ -1,12 +1,14 @@
 orbs:
   docker: circleci/docker@2.1.1
+
 version: 2.1
+
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME: docker.io/adityabawne37/hinata
+      IMAGE_NAME: adityabawne37/hinata
     docker:
-      - image: circleci/node:latest
+      - image: cimg/node:20.18
         auth:
           username: $DOCKER_USERNAME
           password: $DOCKER_PASSWORD
@@ -14,19 +16,36 @@ executors:
 jobs:
   publishLatestToHub:
     executor: docker-publisher
+
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.7
+
+      - setup_remote_docker
+
       - run:
-          name: Publish Docker Image to Docker Hub
+          name: Docker Version
+          command: docker version
+
+      - run:
+          name: Login
           command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker build -t $IMAGE_NAME .
+            echo "$DOCKER_PASSWORD" | docker login \
+              -u "$DOCKER_USERNAME" \
+              --password-stdin
+
+      - run:
+          name: Build Image
+          command: |
+            docker build -t $IMAGE_NAME:latest .
+
+      - run:
+          name: Push Image
+          command: |
             docker push $IMAGE_NAME:latest
 
 workflows:
   version: 2
+
   build-master:
     jobs:
       - publishLatestToHub
